@@ -109,8 +109,25 @@ app.add_middleware(
 )
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-MODEL_PATH = ROOT_DIR / "public" / "trained_network.pkl"
 MODEL: Network | None = None
+
+
+def model_candidates() -> list[Path]:
+    """Rutas posibles del modelo en local y en el bundle serverless de Vercel."""
+    env_path = os.getenv("MODEL_PATH")
+    candidates = [
+        ROOT_DIR / "public" / "trained_network.pkl",
+        ROOT_DIR / "dist" / "trained_network.pkl",
+        Path.cwd() / "public" / "trained_network.pkl",
+        Path.cwd() / "trained_network.pkl",
+        Path("/var/task/public/trained_network.pkl"),
+        Path("/var/task/trained_network.pkl"),
+    ]
+
+    if env_path:
+        candidates.insert(0, Path(env_path))
+
+    return candidates
 
 
 def load_model() -> Network:
@@ -120,12 +137,16 @@ def load_model() -> Network:
     if MODEL is not None:
         return MODEL
 
-    if not MODEL_PATH.exists():
+    model_path = next((path for path in model_candidates() if path.exists()), None)
+
+    if model_path is None:
+        checked_paths = ", ".join(str(path) for path in model_candidates())
         raise RuntimeError(
-            f"No se encontro el modelo en {MODEL_PATH}. Copia trained_network.pkl en public/."
+            "No se encontro el modelo trained_network.pkl. "
+            f"Rutas revisadas: {checked_paths}."
         )
 
-    with MODEL_PATH.open("rb") as model_file:
+    with model_path.open("rb") as model_file:
         loaded_model = NetworkUnpickler(model_file).load()
 
     if not hasattr(loaded_model, "feedforward"):
