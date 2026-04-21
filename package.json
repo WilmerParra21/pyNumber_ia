@@ -1,0 +1,20 @@
+{
+  "name": "mnist-ia-web",
+  "version": "1.0.0",
+  "description": "Sistema web para clasificar dígitos MNIST con FastAPI, Astro y Tailwind CSS.",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "dev:api": "python -m uvicorn api.index:app --reload --port 8000",
+    "build": "astro check && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/check": "0.9.4",
+    "@astrojs/tailwind": "5.1.4",
+    "astro": "5.1.1",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.7.2"
+  },
+  "devDependencies": {}
+}

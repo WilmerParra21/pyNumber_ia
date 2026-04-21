@@ -1,0 +1,20 @@
+---
+import MnistClassifier from '../components/MnistClassifier.astro';
+
+const apiUrl = import.meta.env.PUBLIC_API_URL ?? '/api/predict';
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Clasificador web de dígitos MNIST con IA, FastAPI, Astro y Tailwind CSS."
+    />
+    <title>PyNumber IA</title>
+  </head>
+  <body class="min-h-screen bg-oat text-ink antialiased">
+    <MnistClassifier apiUrl={apiUrl} />
+  </body>
+</html>
