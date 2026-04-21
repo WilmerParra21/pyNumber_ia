@@ -447,6 +447,7 @@ def health() -> dict[str, str]:
 
 
 @app.post("/api/predict")
+@app.post("/predict")
 async def predict(files: list[UploadFile] = File(...)) -> dict[str, Any]:
     """Recibe una o varias imagenes y devuelve la prediccion MNIST de cada una."""
     if not files:
