@@ -342,20 +342,20 @@ const { apiUrl = '/api/predict' } = Astro.props;
         body: formData,
       });
 
+      const rawResponseText = await response.text();
       let payload;
-      let errorText = '';
+      let errorText = rawResponseText;
 
       try {
-        payload = await response.json();
-      } catch (error) {
-        errorText = await response.text();
-        throw new Error(
-          errorText || 'La respuesta del servidor no es un JSON válido.'
-        );
+        payload = rawResponseText ? JSON.parse(rawResponseText) : {};
+      } catch {
+        payload = undefined;
       }
 
       if (!response.ok) {
-        throw new Error(payload.detail ?? errorText ?? 'La prediccion no pudo completarse.');
+        throw new Error(
+          (payload?.detail ?? errorText) || 'La respuesta del servidor no es un JSON válido.'
+        );
       }
 
       const results = payload.results ?? [payload];
