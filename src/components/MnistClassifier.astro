@@ -16,7 +16,7 @@ const { apiUrl = '/api/predict' } = Astro.props;
         </h1>
       </div>
       <p class="max-w-sm text-sm leading-6 text-slate-500">
-        Sube una o varias imagenes. El modelo devuelve la clase detectada y la distribucion de confianza.
+        Sube solo una imagen. El modelo devuelve la clase detectada y la distribucion de confianza.
       </p>
     </header>
 
@@ -43,20 +43,20 @@ const { apiUrl = '/api/predict' } = Astro.props;
           </span>
 
           <span class="space-y-2">
-            <strong class="block text-2xl font-semibold text-ink">Arrastra imagenes</strong>
+            <strong class="block text-2xl font-semibold text-ink">Arrastra una imagen</strong>
             <span class="block text-sm text-slate-500">PNG, JPG o WEBP</span>
           </span>
 
           <span class="inline-flex h-10 items-center rounded-[8px] border border-line bg-white px-4 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent">
-            Seleccionar archivos
+            Seleccionar imagen
           </span>
 
-          <input id="file-input" name="files" type="file" accept="image/*" multiple class="sr-only" />
+          <input id="file-input" name="files" type="file" accept="image/*" class="sr-only" />
         </label>
 
         <div id="preview-panel" class="mt-4 hidden rounded-[8px] border border-line bg-fog p-3">
           <div class="mb-3 flex items-center justify-between gap-3">
-            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Imagenes cargadas</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Imagen cargada</p>
             <button
               id="clear-button"
               type="button"
@@ -151,8 +151,10 @@ const { apiUrl = '/api/predict' } = Astro.props;
     ? apiUrl
     : `${window.location.origin}${apiUrl}`;
 
+  const MAX_FILES = 1;
   let selectedFiles = [];
   let previewUrls = [];
+  let fileLimitMessage = '';
 
   const escapeHtml = (value) =>
     String(value)
@@ -199,14 +201,24 @@ const { apiUrl = '/api/predict' } = Astro.props;
   const updateSelectionState = () => {
     submitButton.disabled = selectedFiles.length === 0;
     fileSummary.textContent =
-      selectedFiles.length === 0
+      fileLimitMessage ||
+      (selectedFiles.length === 0
         ? 'Ningun archivo seleccionado.'
-        : `${selectedFiles.length} imagen${selectedFiles.length === 1 ? '' : 'es'} lista${selectedFiles.length === 1 ? '' : 's'}.`;
+        : `${selectedFiles.length} imagen${selectedFiles.length === 1 ? '' : 'es'} lista${selectedFiles.length === 1 ? '' : 's'}.`);
     renderPreviews();
   };
 
   const setFiles = (files) => {
-    selectedFiles = Array.from(files).filter((file) => file.type.startsWith('image/'));
+    const imageFiles = Array.from(files).filter((file) => file.type.startsWith('image/'));
+
+    if (imageFiles.length > MAX_FILES) {
+      selectedFiles = imageFiles.slice(0, MAX_FILES);
+      fileLimitMessage = `Solo puedes subir una imagen para probar por ahora.`;
+    } else {
+      selectedFiles = imageFiles;
+      fileLimitMessage = '';
+    }
+
     updateSelectionState();
   };
 
